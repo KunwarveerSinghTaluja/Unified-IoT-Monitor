@@ -34,6 +34,10 @@ public class DataController {
     public ResponseEntity<List<DeviceData>> getRecentMessages() {
         return ResponseEntity.ok(deviceDataService.getRecentMessages(50));
     }
+    @GetMapping("/device-data")
+    public ResponseEntity<List<DeviceData>> getAllDeviceData() {
+        return ResponseEntity.ok(deviceDataService.getAllDeviceData());
+    }
 
     // Save data from IoT devices
     @PostMapping

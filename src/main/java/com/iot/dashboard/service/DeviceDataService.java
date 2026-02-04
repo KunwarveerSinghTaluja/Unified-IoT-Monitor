@@ -78,6 +78,9 @@ public class DeviceDataService {
 
         return result;
     }
+    public List<DeviceData> getAllDeviceData() {
+        return deviceDataRepository.findAllByOrderByTimestampDesc();
+    }
 
     // ✅ Get recent MQTT messages
     public List<DeviceData> getRecentMessages(int limit) {

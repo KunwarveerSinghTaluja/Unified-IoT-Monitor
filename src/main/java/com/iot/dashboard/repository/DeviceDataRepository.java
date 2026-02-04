@@ -23,6 +23,7 @@ public interface DeviceDataRepository extends JpaRepository<DeviceData, Long> {
 
     // Find by device ID
     List<DeviceData> findByDeviceIdOrderByTimestampDesc(String deviceId);
+    List<DeviceData> findAllByOrderByTimestampDesc();
 
     // Find by data type
     List<DeviceData> findByDataTypeOrderByTimestampDesc(String dataType);
