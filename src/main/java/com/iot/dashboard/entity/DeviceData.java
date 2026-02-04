@@ -29,7 +29,7 @@ public class DeviceData {
     public String getDeviceId() { return deviceId; }
     public void setDeviceId(String deviceId) { this.deviceId = deviceId; }
 
-    // ✅ ADD THIS GETTER
+
     public String getDataType() { return dataType; }
     public void setDataType(String dataType) { this.dataType = dataType; }
 
