@@ -234,7 +234,7 @@
             border-color: var(--primary);
         }
 
-        /* Logo */
+        /* Logo - FIXED CSS */
         .logo-container {
             width: 80px;
             height: 80px;
@@ -255,9 +255,7 @@
             border-radius: 20px;
             padding: 2px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
+            /* FIXED: Removed problematic mask-composite property */
             opacity: 0.5;
         }
 
@@ -268,10 +266,14 @@
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
             z-index: 1000;
-            display: flex;
+            display: none; /* Changed from flex to none */
             align-items: center;
             justify-content: center;
             animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal.show {
+            display: flex; /* Show when needed */
         }
 
         .modal-content {
@@ -410,187 +412,6 @@
             font-family: 'Space Mono', monospace;
         }
     </style>
-
-    <!-- Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: 'var(--primary)',
-                        'primary-dark': 'var(--primary-dark)',
-                        secondary: 'var(--secondary)',
-                        success: 'var(--success)',
-                        warning: 'var(--warning)',
-                        danger: 'var(--danger)',
-                        'dark-bg': 'var(--dark-bg)',
-                        'card-bg': 'var(--card-bg)',
-                        'border-color': 'var(--border-color)',
-                    }
-                }
-            }
-        }
-    </script>
-
-    <script>
-        // Show notification
-        function showNotification(message, type = 'info') {
-            const container = document.getElementById('notificationContainer');
-            const notification = document.createElement('div');
-
-            let bgColor = 'bg-blue-600';
-            let icon = 'info';
-
-            if (type === 'success') {
-                bgColor = 'bg-success';
-                icon = 'check_circle';
-            } else if (type === 'danger' || type === 'error') {
-                bgColor = 'bg-danger';
-                icon = 'error';
-            } else if (type === 'warning') {
-                bgColor = 'bg-warning';
-                icon = 'warning';
-            }
-
-            notification.className = 'notification';
-            notification.innerHTML = `
-                <div class="${bgColor} text-white rounded-lg shadow-2xl p-4 flex items-start space-x-3">
-                    <span class="material-icons-round flex-shrink-0">${icon}</span>
-                    <div class="flex-1">
-                        <div class="text-sm font-medium">${message}</div>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white transition-colors">
-                        <span class="material-icons-round text-sm">close</span>
-                    </button>
-                </div>
-            `;
-
-            container.appendChild(notification);
-
-            setTimeout(() => {
-                notification.classList.add('exit');
-                setTimeout(() => notification.remove(), 300);
-            }, 5000);
-        }
-
-        // Show error in form
-        function showError(elementId, message) {
-            const errorEl = document.getElementById(elementId);
-            if (errorEl) {
-                errorEl.textContent = message;
-                errorEl.style.display = 'block';
-                errorEl.parentElement.classList.add('shake');
-                setTimeout(() => errorEl.parentElement.classList.remove('shake'), 500);
-            }
-        }
-
-        // Hide error message
-        function hideError(elementId) {
-            const errorEl = document.getElementById(elementId);
-            if (errorEl) {
-                errorEl.style.display = 'none';
-            }
-        }
-
-        // Toggle between login and register screens
-        function toggleAuthScreen() {
-            const loginScreen = document.getElementById('loginScreen');
-            const registerScreen = document.getElementById('registerScreen');
-
-            if (loginScreen.classList.contains('hidden')) {
-                loginScreen.classList.remove('hidden');
-                registerScreen.classList.add('hidden');
-            } else {
-                registerScreen.classList.remove('hidden');
-                loginScreen.classList.add('hidden');
-            }
-
-            hideError('loginError');
-            hideError('registerError');
-        }
-
-        // Open forgot password modal
-        function openForgotPasswordModal() {
-            document.getElementById('forgotPasswordModal').classList.remove('hidden');
-            hideError('forgotError');
-        }
-
-        // Close modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        // Check for saved credentials
-        function checkRememberMe() {
-            const rememberMe = localStorage.getItem('rememberMe');
-            const savedUsername = localStorage.getItem('username');
-
-            if (rememberMe === 'true' && savedUsername) {
-                document.getElementById('loginUsername').value = savedUsername;
-                document.getElementById('rememberMe').checked = true;
-            }
-        }
-
-        // Handle form submission
-        function handleFormSubmit(formId) {
-            const form = document.getElementById(formId);
-            if (!form) return;
-
-            form.addEventListener('submit', function(e) {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<div class="spinner"></div> Processing...';
-                    submitBtn.disabled = true;
-
-                    // Save remember me preference
-                    if (formId === 'loginForm') {
-                        const rememberMe = document.getElementById('rememberMe').checked;
-                        const username = document.getElementById('loginUsername').value;
-
-                        if (rememberMe) {
-                            localStorage.setItem('rememberMe', 'true');
-                            localStorage.setItem('username', username);
-                        } else {
-                            localStorage.removeItem('rememberMe');
-                            localStorage.removeItem('username');
-                        }
-                    }
-
-                    // Re-enable button after 5 seconds (in case of error)
-                    setTimeout(() => {
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
-                    }, 5000);
-                }
-            });
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check for remember me
-            checkRememberMe();
-
-            // Set up form submissions
-            handleFormSubmit('loginForm');
-            handleFormSubmit('registerForm');
-
-            // Check for URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            const logout = urlParams.get('logout');
-
-            if (error === 'true') {
-                showError('loginError', 'Invalid username or password');
-                showNotification('Login failed. Please check your credentials.', 'error');
-            }
-
-            if (logout === 'true') {
-                showNotification('You have been logged out successfully.', 'success');
-            }
-        });
-    </script>
 </head>
 <body>
 
@@ -722,7 +543,7 @@
 </div>
 
 <!-- Forgot Password Modal -->
-<div id="forgotPasswordModal" class="modal hidden">
+<div id="forgotPasswordModal" class="modal">
     <div class="modal-content">
         <div class="p-6 border-b border-border-color">
             <div class="flex items-center justify-between">
@@ -756,6 +577,162 @@
 
 <!-- Notification Container -->
 <div id="notificationContainer"></div>
+
+<script>
+    // JavaScript functions - defined BEFORE they're called
+
+    // Toggle between login and register screens
+    function toggleAuthScreen() {
+        const loginScreen = document.getElementById('loginScreen');
+        const registerScreen = document.getElementById('registerScreen');
+
+        if (loginScreen.classList.contains('hidden')) {
+            loginScreen.classList.remove('hidden');
+            registerScreen.classList.add('hidden');
+        } else {
+            registerScreen.classList.remove('hidden');
+            loginScreen.classList.add('hidden');
+        }
+    }
+
+    // Open forgot password modal
+    function openForgotPasswordModal() {
+        document.getElementById('forgotPasswordModal').classList.add('show');
+    }
+
+    // Close modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const container = document.getElementById('notificationContainer');
+        const notification = document.createElement('div');
+
+        let bgColor = 'bg-blue-600';
+        let icon = 'info';
+
+        if (type === 'success') {
+            bgColor = 'bg-success';
+            icon = 'check_circle';
+        } else if (type === 'danger' || type === 'error') {
+            bgColor = 'bg-danger';
+            icon = 'error';
+        } else if (type === 'warning') {
+            bgColor = 'bg-warning';
+            icon = 'warning';
+        }
+
+        notification.className = 'notification';
+        notification.innerHTML = `
+            <div class="${bgColor} text-white rounded-lg shadow-2xl p-4 flex items-start space-x-3">
+                <span class="material-icons-round flex-shrink-0">${icon}</span>
+                <div class="flex-1">
+                    <div class="text-sm font-medium">${message}</div>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white transition-colors">
+                    <span class="material-icons-round text-sm">close</span>
+                </button>
+            </div>
+        `;
+
+        container.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('exit');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // Show error in form
+    function showError(elementId, message) {
+        const errorEl = document.getElementById(elementId);
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            errorEl.parentElement.classList.add('shake');
+            setTimeout(() => errorEl.parentElement.classList.remove('shake'), 500);
+        }
+    }
+
+    // Hide error message
+    function hideError(elementId) {
+        const errorEl = document.getElementById(elementId);
+        if (errorEl) {
+            errorEl.style.display = 'none';
+        }
+    }
+
+    // Check for saved credentials
+    function checkRememberMe() {
+        const rememberMe = localStorage.getItem('rememberMe');
+        const savedUsername = localStorage.getItem('username');
+
+        if (rememberMe === 'true' && savedUsername) {
+            document.getElementById('loginUsername').value = savedUsername;
+            document.getElementById('rememberMe').checked = true;
+        }
+    }
+
+    // Handle form submission
+    function handleFormSubmit(formId) {
+        const form = document.getElementById(formId);
+        if (!form) return;
+
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<div class="spinner"></div> Processing...';
+                submitBtn.disabled = true;
+
+                // Save remember me preference
+                if (formId === 'loginForm') {
+                    const rememberMe = document.getElementById('rememberMe').checked;
+                    const username = document.getElementById('loginUsername').value;
+
+                    if (rememberMe) {
+                        localStorage.setItem('rememberMe', 'true');
+                        localStorage.setItem('username', username);
+                    } else {
+                        localStorage.removeItem('rememberMe');
+                        localStorage.removeItem('username');
+                    }
+                }
+
+                // Re-enable button after 5 seconds (in case of error)
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 5000);
+            }
+        });
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for remember me
+        checkRememberMe();
+
+        // Set up form submissions
+        handleFormSubmit('loginForm');
+
+        // Check for URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const logout = urlParams.get('logout');
+
+        if (error === 'true') {
+            showError('loginError', 'Invalid username or password');
+            showNotification('Login failed. Please check your credentials.', 'error');
+        }
+
+        if (logout === 'true') {
+            showNotification('You have been logged out successfully.', 'success');
+        }
+    });
+</script>
 
 </body>
 </html>
