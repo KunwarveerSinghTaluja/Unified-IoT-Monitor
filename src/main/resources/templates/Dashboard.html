@@ -1377,7 +1377,7 @@
             });
 
             if (response.ok) {
-                const chartData = await chartData.json();
+                const chartData = await response.json();
                 updateCharts(chartData);
             }
         } catch (error) {
@@ -1793,7 +1793,7 @@
 
         document.getElementById('footerStatusDot').className = `w-2 h-2 rounded-full ${statusColor} mr-2 flex-shrink-0`;
         document.getElementById('footerStatusText').textContent = fullText;
-        document.getElementById('footerStatusText').className = `text-sm ${textColor} font-medium`;
+        document.getElementById('footerStatusText').className = `${textColor} font-medium`;
     }
 
     // ============================================
@@ -2042,7 +2042,7 @@
             offlineDevices: 1,
             warningDevices: 1,
             activeAlerts: 2,
-            uptimePercentage: "66.7%"
+            uptimePercentage: "66.7"
         });
 
         // Simulated chart data

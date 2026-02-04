@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Dashboard v1.0.0 | Login</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #0099cc;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: var(--dark-bg);
+            color: #e2e8f0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.03) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--card-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Card with glassmorphism */
+        .auth-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(26, 34, 54, 0.8));
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        /* Form inputs */
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            color: white;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #64748b;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            position: relative;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        /* Logo */
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+            position: relative;
+        }
+
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 320px;
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .notification.exit {
+            animation: slideOutRight 0.3s ease-out;
+        }
+
+        /* Alert boxes */
+        .alert {
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fcd34d;
+        }
+
+        /* Info box */
+        .info-box {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Link styling */
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .link:hover {
+            color: var(--primary-dark);
+        }
+
+        .link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .link:hover::after {
+            width: 100%;
+        }
+
+        /* Checkbox custom styling */
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Version badge */
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            font-family: 'Space Mono', monospace;
+        }
+    </style>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: 'var(--primary)',
+                        'primary-dark': 'var(--primary-dark)',
+                        secondary: 'var(--secondary)',
+                        success: 'var(--success)',
+                        warning: 'var(--warning)',
+                        danger: 'var(--danger)',
+                        'dark-bg': 'var(--dark-bg)',
+                        'card-bg': 'var(--card-bg)',
+                        'border-color': 'var(--border-color)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script>
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+
+            let bgColor = 'bg-blue-600';
+            let icon = 'info';
+
+            if (type === 'success') {
+                bgColor = 'bg-success';
+                icon = 'check_circle';
+            } else if (type === 'danger' || type === 'error') {
+                bgColor = 'bg-danger';
+                icon = 'error';
+            } else if (type === 'warning') {
+                bgColor = 'bg-warning';
+                icon = 'warning';
+            }
+
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div class="${bgColor} text-white rounded-lg shadow-2xl p-4 flex items-start space-x-3">
+                    <span class="material-icons-round flex-shrink-0">${icon}</span>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">${message}</div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white transition-colors">
+                        <span class="material-icons-round text-sm">close</span>
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('exit');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Show error in form
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+                errorEl.parentElement.classList.add('shake');
+                setTimeout(() => errorEl.parentElement.classList.remove('shake'), 500);
+            }
+        }
+
+        // Hide error message
+        function hideError(elementId) {
+            const errorEl = document.getElementById(elementId);
+            if (errorEl) {
+                errorEl.style.display = 'none';
+            }
+        }
+
+        // Toggle between login and register screens
+        function toggleAuthScreen() {
+            const loginScreen = document.getElementById('loginScreen');
+            const registerScreen = document.getElementById('registerScreen');
+
+            if (loginScreen.classList.contains('hidden')) {
+                loginScreen.classList.remove('hidden');
+                registerScreen.classList.add('hidden');
+            } else {
+                registerScreen.classList.remove('hidden');
+                loginScreen.classList.add('hidden');
+            }
+
+            hideError('loginError');
+            hideError('registerError');
+        }
+
+        // Open forgot password modal
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('hidden');
+            hideError('forgotError');
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Check for saved credentials
+        function checkRememberMe() {
+            const rememberMe = localStorage.getItem('rememberMe');
+            const savedUsername = localStorage.getItem('username');
+
+            if (rememberMe === 'true' && savedUsername) {
+                document.getElementById('loginUsername').value = savedUsername;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        // Handle form submission
+        function handleFormSubmit(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            form.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn && !submitBtn.disabled) {
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<div class="spinner"></div> Processing...';
+                    submitBtn.disabled = true;
+
+                    // Save remember me preference
+                    if (formId === 'loginForm') {
+                        const rememberMe = document.getElementById('rememberMe').checked;
+                        const username = document.getElementById('loginUsername').value;
+
+                        if (rememberMe) {
+                            localStorage.setItem('rememberMe', 'true');
+                            localStorage.setItem('username', username);
+                        } else {
+                            localStorage.removeItem('rememberMe');
+                            localStorage.removeItem('username');
+                        }
+                    }
+
+                    // Re-enable button after 5 seconds (in case of error)
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }, 5000);
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for remember me
+            checkRememberMe();
+
+            // Set up form submissions
+            handleFormSubmit('loginForm');
+            handleFormSubmit('registerForm');
+
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const logout = urlParams.get('logout');
+
+            if (error === 'true') {
+                showError('loginError', 'Invalid username or password');
+                showNotification('Login failed. Please check your credentials.', 'error');
+            }
+
+            if (logout === 'true') {
+                showNotification('You have been logged out successfully.', 'success');
+            }
+        });
+    </script>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 relative z-10">
+    <div class="auth-card max-w-md w-full animate-fade-in">
+        <div class="text-center mb-8">
+            <div class="logo-container">
+                <span class="material-icons-round text-white text-4xl">dashboard</span>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">IoT Monitor</h1>
+            <div class="version-badge mx-auto mb-3">
+                <span class="material-icons-round text-xs">verified</span>
+                <span>v1.0.0</span>
+            </div>
+            <p class="text-gray-400 text-sm">Sign in to access your dashboard</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" th:action="@{/perform_login}" method="post" class="space-y-5">
+            <div>
+                <label class="form-label">Username</label>
+                <input type="text"
+                       id="loginUsername"
+                       name="username"
+                       class="form-input"
+                       placeholder="Enter your username"
+                       required
+                       autofocus>
+            </div>
+
+            <div>
+                <label class="form-label">Password</label>
+                <input type="password"
+                       id="loginPassword"
+                       name="password"
+                       class="form-input"
+                       placeholder="Enter your password"
+                       required>
+            </div>
+
+            <!-- Spring Security error messages -->
+            <div th:if="${param.error}" class="alert alert-danger">
+                <span class="material-icons-round">error</span>
+                <span>Invalid username or password.</span>
+            </div>
+
+            <div th:if="${param.logout}" class="alert alert-success">
+                <span class="material-icons-round">check_circle</span>
+                <span>You have been logged out successfully.</span>
+            </div>
+
+            <div id="loginError" class="alert alert-danger" style="display: none;"></div>
+
+            <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-gray-300 transition-colors">
+                    <input type="checkbox" id="rememberMe" name="remember-me">
+                    <span>Remember me</span>
+                </label>
+                <button type="button"
+                        onclick="openForgotPasswordModal()"
+                        class="text-sm link">
+                    Forgot password?
+                </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">
+                <span class="material-icons-round text-lg">login</span>
+                <span>Sign In</span>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-400">
+                Don't have an account?
+                <button onclick="toggleAuthScreen()" class="link ml-1">
+                    Create one here
+                </button>
+            </p>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-border-color">
+            <div class="info-box">
+                <span class="material-icons-round text-secondary text-2xl mb-2">info</span>
+                <p class="text-sm text-gray-300 font-medium mb-1">Demo Credentials</p>
+                <p class="text-xs text-gray-400">Username: <span class="text-primary font-mono">admin</span></p>
+                <p class="text-xs text-gray-400">Password: <span class="text-primary font-mono">admin123</span></p>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center text-xs text-gray-500">
+            <p>© 2026 IoT Dashboard • Professional Monitoring System</p>
+        </div>
+    </div>
+</div>
+
+<!-- Register Screen -->
+<div id="registerScreen" class="min-h-screen flex items-center justify-center p-4 relative z-10 hidden">
+    <div class="auth-card max-w-md w-full animate-fade-in">
+        <div class="text-center mb-8">
+            <div class="logo-container">
+                <span class="material-icons-round text-white text-4xl">person_add</span>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Create Account</h1>
+            <p class="text-gray-400 text-sm">Join the IoT monitoring platform</p>
+        </div>
+
+        <div class="alert alert-warning mb-6">
+            <span class="material-icons-round">info</span>
+            <div>
+                <p class="font-medium">Registration Disabled</p>
+                <p class="text-xs mt-1">This feature is disabled in demo mode. Please use the demo credentials.</p>
+            </div>
+        </div>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-400">
+                Already have an account?
+                <button onclick="toggleAuthScreen()" class="link ml-1">
+                    Sign in here
+                </button>
+            </p>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-border-color text-center text-xs text-gray-500">
+            <p>Secure authentication powered by Spring Security</p>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotPasswordModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="p-6 border-b border-border-color">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white">Reset Password</h3>
+                <button onclick="closeModal('forgotPasswordModal')" class="text-gray-400 hover:text-white transition-colors">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="alert alert-warning mb-4">
+                <span class="material-icons-round">info</span>
+                <div>
+                    <p class="font-medium">Feature Unavailable</p>
+                    <p class="text-xs mt-1">Password reset is disabled in demo mode.</p>
+                </div>
+            </div>
+
+            <div class="info-box mb-4">
+                <p class="text-sm text-gray-300 mb-2">Demo Credentials</p>
+                <p class="text-xs text-gray-400">Username: <span class="text-primary font-mono">admin</span></p>
+                <p class="text-xs text-gray-400">Password: <span class="text-primary font-mono">admin123</span></p>
+            </div>
+
+            <button type="button" onclick="closeModal('forgotPasswordModal')" class="btn btn-secondary w-full">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Container -->
+<div id="notificationContainer"></div>
+
+</body>
+</html>
